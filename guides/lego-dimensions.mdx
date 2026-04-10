@@ -1,0 +1,94 @@
+---
+title: "Track your LEGO Dimensions figure collection in Memory Pak"
+description: "Log your LEGO Dimensions character and pack collection. Search by name, category, or pack ID, and sort to group related figures together."
+---
+
+The **LEGO Dimensions** tab tracks the physical figure and vehicle pack collection for LEGO Dimensions. Each entry represents a character or figure with its category (such as Fun Pack, Level Pack, or Team Pack), pack ID, and release year. Unlike the Games and Consoles tabs, the LEGO Dimensions list does not paginate — all figures load into a single scrollable area so you can scan your full collection at once.
+
+## What is tracked
+
+Each figure entry contains:
+
+| Field | Description |
+|-------|-------------|
+| **Name** | The character or figure name |
+| **Category** | The pack type — for example, Fun Pack, Level Pack, Team Pack, Story Pack |
+| **Pack ID** | The official LEGO pack identifier for this figure |
+| **Year** | The year the pack was released |
+
+Your personal status (owned, favorite, wishlist) and any notes are stored separately and persist across sessions.
+
+## Finding a figure
+
+<Tabs>
+  <Tab title="Search">
+    Type in the **Search** box to filter figures. The search checks the **name**, **category**, and **pack ID** fields simultaneously, so you can:
+
+    - Search by character name: `batman`
+    - Search by pack type: `level pack`
+    - Search by pack ID: `71344`
+
+    The search uses the same Unicode-normalization logic as the Games tab — accented characters and common punctuation are handled automatically.
+  </Tab>
+  <Tab title="Filter">
+    Use the **Filter** controls to show only figures in a specific status:
+
+    | Filter | Shows |
+    |--------|-------|
+    | **All** | Every figure in the database |
+    | **Owned** | Figures you have marked as owned |
+    | **Favorites** | Figures you have marked as a favorite |
+    | **Wishlist** | Figures on your wishlist |
+    | **Not Owned** | Figures without the owned checkbox checked |
+  </Tab>
+  <Tab title="Sort">
+    Four sort options are available:
+
+    - **Name** — alphabetical by character name (default)
+    - **Category** — grouped by pack type, then by name within each category
+    - **Year** — by release year, then category, then name
+    - **Pack** — grouped by pack ID, then category, then name
+  </Tab>
+</Tabs>
+
+## Grouping related figures
+
+<AccordionGroup>
+  <Accordion title="Sort by Category to see all Fun Packs together">
+    Selecting **Category** as the sort option groups every figure by its pack type. All Fun Pack figures appear together, followed by Level Packs, Story Packs, Team Packs, and so on (in alphabetical order by category name). Within each group, figures are sorted by name.
+
+    This is useful when you're reviewing which pack types you have the most or fewest of.
+  </Accordion>
+  <Accordion title="Sort by Pack to group by pack ID">
+    Selecting **Pack** sorts figures by their pack ID, which groups all figures that belong to the same physical LEGO box together. Within each pack group, figures are further sorted by category, then name.
+
+    Use this view when you're cross-referencing the list against physical packs rather than individual characters.
+  </Accordion>
+  <Accordion title="Sort by Year to see chronological releases">
+    Selecting **Year** orders figures from earliest to latest release, with ties broken by category and then name. This is helpful for tracking which waves of figures you're missing.
+  </Accordion>
+</AccordionGroup>
+
+## Marking a figure
+
+<Steps>
+  <Step title="Find the figure">
+    Use the search box to type the character name, pack type, or pack ID. The list filters in real time.
+  </Step>
+  <Step title="Check the appropriate box">
+    Click **Owned**, **Favorite**, or **Wishlist** on the figure card. Any combination is valid — you can mark a figure as both owned and a favorite.
+  </Step>
+  <Step title="Add notes (optional)">
+    Click the **Notes** area on the card to record anything useful — the condition of the NFC tag, whether the figure includes the minifig, or where you purchased it.
+  </Step>
+</Steps>
+
+Changes are saved automatically after a short debounce. There is no manual save step.
+
+<Tip>
+  Use the **Wishlist** filter combined with the **Pack** sort to group figures you still want by their pack ID — handy when you're looking up what to buy next.
+</Tip>
+
+## Figure IDs
+
+Each figure is assigned a stable internal ID in the format `lego-{pack_id_slug}-{name_slug}`. This ID is used in the [export file](/guides/import-export) to identify figures across imports and backups. You do not need to interact with it directly.

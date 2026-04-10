@@ -1,0 +1,82 @@
+---
+title: "Where Memory Pak stores your collection data"
+description: "How Memory Pak saves your collection locally on desktop and in the browser — file locations, localStorage keys, and the 500 ms save debounce."
+---
+
+Memory Pak saves your collection automatically as you make changes — no account, cloud service, or manual save required. On desktop it writes JSON files to a platform-specific directory. On the web it uses your browser's localStorage. Neither platform sends your data anywhere outside your device.
+
+## Storage locations
+
+<Tabs>
+  <Tab title="Desktop">
+    Memory Pak uses the [`directories`](https://crates.io/crates/directories) crate with the qualifier `com`, organization `memorypak`, and application `memory_pak` to resolve the correct path on each OS.
+
+    | Platform | State directory |
+    | --- | --- |
+    | Windows | `%APPDATA%\com\memorypak\memory_pak\state\` |
+    | macOS | `~/Library/Application Support/com.memorypak.memory_pak/state/` |
+    | Linux | `~/.local/share/com/memorypak/memory_pak/state/` |
+
+    Memory Pak creates the `state/` directory automatically on first launch if it does not exist.
+
+    <Tip>
+      To manually back up your collection on desktop, copy the entire `state/` directory to a safe location. You can restore it by copying the files back to the same path.
+    </Tip>
+  </Tab>
+  <Tab title="Web">
+    The web (WASM) build stores all data in your browser's localStorage under domain-scoped keys. There are no files on disk.
+
+    | localStorage key | Content |
+    | --- | --- |
+    | `memory_pak_console_states` | All console states as a JSON array |
+    | `memory_pak_state_{console_id}` | Game states for a specific console (e.g. `memory_pak_state_nes`) |
+    | `memory_pak_lego_dimensions_states` | All LEGO Dimensions figure states |
+    | `memory_pak_skylanders_states` | All Skylanders figure states |
+
+    <Note>
+      Browser localStorage is typically limited to 5–10 MB depending on the browser. Collections with extensive notes across many games and figures could approach this limit. If you hit storage errors, export your data and consider clearing states for consoles you no longer track actively.
+    </Note>
+  </Tab>
+</Tabs>
+
+## State files (desktop)
+
+Each file in the `state/` directory is a JSON array of state objects.
+
+| File | Content |
+| --- | --- |
+| `consoles.json` | All `ConsoleState` records — one per console you have interacted with |
+| `{console_id}.json` | All `GameState` records for that console (e.g. `nes.json`, `snes.json`, `n64.json`) |
+| `lego_dimensions.json` | All `LegoDimensionState` records |
+| `skylanders.json` | All `SkylanderState` records |
+
+Game state files are created per console on demand. If you have never interacted with a console's games, no file is created for it.
+
+## State object structure
+
+Every tracked item — console, game, LEGO Dimensions figure, or Skylander — is saved as a state object with the same four fields:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `owned` | boolean | Whether you own this item |
+| `favorite` | boolean | Whether you have marked it as a favorite |
+| `wishlist` | boolean | Whether it is on your wishlist |
+| `notes` | string | Your freeform notes for this item |
+
+Each state object also contains an ID field that links it to the item in the embedded database (`console_id`, `game_id`, `figure_id`, or `skylander_id`).
+
+## Save debouncing
+
+Memory Pak does not write to disk (or localStorage) on every single change. Instead, it uses a 500 ms debounce: after you make a change, a save is scheduled, and the actual write happens 500 ms after the last change in that burst.
+
+This means:
+
+- Rapidly toggling owned/favorite/wishlist across many items triggers only one write after you stop.
+- Your data is still saved promptly — at most half a second after your last interaction.
+- On desktop, each console's game states are grouped and written to their respective `{console_id}.json` files in a single flush.
+
+The debounce is implemented in `maybe_flush_saves` (`src/main.rs:324`), which is called every frame. Pending save flags (`pending_console_save`, `pending_game_save`, `pending_lego_save`, `pending_skylanders_save`) track which data types have unsaved changes.
+
+## Related
+
+- To create a portable backup of your collection, see [Exporting and importing your collection backup](/guides/import-export).

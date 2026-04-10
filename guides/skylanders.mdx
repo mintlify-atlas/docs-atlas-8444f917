@@ -1,0 +1,91 @@
+---
+title: "Track your Skylanders figure collection in Memory Pak"
+description: "Catalog your Skylanders figure collection by game, character name, base color, and category. Search across all fields and sort to find variants fast."
+---
+
+The **Skylanders** tab tracks the physical figure collection for the Skylanders franchise. Each figure entry records the character name, which Skylanders game title it belongs to, its base color, and its category. Because the same character can appear in multiple games as a variant or reprint, the combination of game, name, and category uniquely identifies each figure. Like the LEGO Dimensions tab, all figures load into a single scrollable area — there is no pagination.
+
+## What is tracked
+
+Each Skylander entry contains:
+
+| Field | Description |
+|-------|-------------|
+| **Name** | The character name — for example, Spyro or Stealth Elf |
+| **Game** | The Skylanders game title the figure is associated with |
+| **Base Color** | The primary color of the figure's base ring |
+| **Category** | The figure type — for example, Core, Giant, Swap Force, Trap Master, SuperCharger, Sensei |
+
+Your personal status (owned, favorite, wishlist) and notes are stored separately and persist across sessions.
+
+## Finding a figure
+
+<Tabs>
+  <Tab title="Search">
+    The search box checks all four fields at once — **name**, **game**, **base color**, and **category**. You can find figures by:
+
+    - Character name: `spyro`
+    - Game title: `trap team`
+    - Base color: `red`
+    - Category: `giant`
+
+    The search uses the same Unicode normalization as the rest of Memory Pak — punctuation and accented characters are handled automatically, so you don't need to type exact punctuation.
+  </Tab>
+  <Tab title="Filter">
+    Use the **Filter** controls to show only figures in a specific ownership status:
+
+    | Filter | Shows |
+    |--------|-------|
+    | **All** | Every figure in the database |
+    | **Owned** | Figures you have marked as owned |
+    | **Favorites** | Figures you have marked as a favorite |
+    | **Wishlist** | Figures on your wishlist |
+    | **Not Owned** | Figures without the owned checkbox checked |
+  </Tab>
+  <Tab title="Sort">
+    Four sort options are available:
+
+    - **Name** — alphabetical by character name (default)
+    - **Game** — grouped by game title, then by name, then by base color
+    - **Base Color** — grouped by base color, then by game, then by name
+    - **Category** — grouped by category, then by game, then by name
+  </Tab>
+</Tabs>
+
+## Sorting strategies
+
+<AccordionGroup>
+  <Accordion title="Sort by Game to review a single game's lineup">
+    Selecting **Game** groups all figures from the same Skylanders title together. Within each game group, figures are sorted by name and then by base color. Use this when you're auditing a specific game's complete figure set — for example, checking which Skylanders Giants you still need.
+  </Accordion>
+  <Accordion title="Sort by Base Color to find color variants">
+    Selecting **Base Color** groups all figures by the color of their base ring, then by game, then by name. The same character with different base colors (a standard versus a reprint or variant) will appear near each other. This is the fastest way to compare variant figures across games.
+  </Accordion>
+  <Accordion title="Sort by Category to browse by figure type">
+    Selecting **Category** groups figures into types — Cores, Giants, Swap Force halves, Trap Masters, SuperChargers, Senseis, and others — sorted by game and then by name within each category. Use this when you want to see how many of each type you have.
+  </Accordion>
+</AccordionGroup>
+
+## Marking a figure
+
+<Steps>
+  <Step title="Find the figure">
+    Use the search box to type the character name, game title, base color, or category. The list filters in real time.
+  </Step>
+  <Step title="Check the appropriate box">
+    Click **Owned**, **Favorite**, or **Wishlist** on the figure card. You can set any combination — for example, mark a figure as owned and a favorite at the same time.
+  </Step>
+  <Step title="Add notes (optional)">
+    Click the **Notes** field on the card to record anything useful — figure condition, reprint details, which starter pack it came from, or a purchase note.
+  </Step>
+</Steps>
+
+Changes are saved automatically. There is no manual save step.
+
+<Tip>
+  Sort by **Game** and filter by **Not Owned** to see every figure you're still missing for a specific Skylanders title. Combine with the search box to narrow to a category like `trap master` within those results.
+</Tip>
+
+## Figure IDs
+
+Each Skylander is assigned a stable internal ID in the format `skylander-{game_slug}-{name_slug}-{category_slug}`. This ID appears in the [export file](/guides/import-export) and is used to reliably identify figures across imports and backups. You do not need to interact with it directly.

@@ -1,0 +1,116 @@
+---
+title: "Install Memory Pak on Windows, macOS, Linux, or Web"
+description: "Download the pre-built installer for your platform, or install Memory Pak from crates.io with a single Cargo command. Version 0.1.5."
+---
+
+Memory Pak 0.1.5 is available as a pre-built installer for Windows, macOS, and Linux, and as a hosted web app that runs directly in your browser. You can also install from source using Cargo if you have a Rust toolchain set up.
+
+<Note>
+  Memory Pak is published on crates.io. If you have Rust installed, you can install it on any platform with:
+
+  ```bash
+  cargo install memory-pak
+  ```
+</Note>
+
+## Install by platform
+
+<Tabs>
+  <Tab title="Windows">
+    Download the MSI installer from the [GitHub Releases page](https://github.com/Aspenini/Memory-Pak/releases) and run it. The installer places Memory Pak in your Programs folder and creates a Start Menu entry.
+
+    The installer file is named `Memory-Pak-0.1.5-x86_64.msi`.
+
+    **Install from Cargo instead:**
+
+    If you have Rust installed, you can skip the installer and run Memory Pak directly from crates.io:
+
+    ```bash
+    cargo install memory-pak
+    ```
+
+    Then launch with:
+
+    ```bash
+    memory_pak
+    ```
+
+    Your collection data is stored in `%APPDATA%\com\memorypak\memory_pak\state\`.
+  </Tab>
+
+  <Tab title="macOS">
+    Download the `.app` bundle from the [GitHub Releases page](https://github.com/Aspenini/Memory-Pak/releases), unzip it, and drag **Memory Pak.app** to your Applications folder.
+
+    <Warning>
+      macOS may show a security prompt the first time you open the app because it is not notarized. Right-click the app and choose **Open** to bypass the Gatekeeper warning.
+    </Warning>
+
+    **Build a .app bundle from source:**
+
+    If you want to build the native `.app` bundle yourself, install `cargo-bundle` and run:
+
+    ```bash
+    cargo install cargo-bundle
+    cargo bundle --release
+    ```
+
+    The output is placed at `target/release/bundle/osx/Memory Pak.app`.
+
+    **Install from Cargo instead:**
+
+    ```bash
+    cargo install memory-pak
+    memory_pak
+    ```
+
+    Your collection data is stored in `~/Library/Application Support/com.memorypak.memory_pak/state/`.
+  </Tab>
+
+  <Tab title="Linux">
+    Download the `.deb` package from the [GitHub Releases page](https://github.com/Aspenini/Memory-Pak/releases) and install it with your package manager:
+
+    ```bash
+    sudo dpkg -i memory_pak_*.deb
+    ```
+
+    Then launch Memory Pak from your applications menu or run:
+
+    ```bash
+    memory-pak
+    ```
+
+    **Install from Cargo instead:**
+
+    ```bash
+    cargo install memory-pak
+    memory_pak
+    ```
+
+    **Build the .deb package from source:**
+
+    ```bash
+    cargo install cargo-deb
+    cargo deb
+    ```
+
+    The package is output to `target/debian/memory_pak_*.deb`.
+
+    Your collection data is stored in `~/.local/share/com/memorypak/memory_pak/state/`.
+  </Tab>
+
+  <Tab title="Web">
+    No installation required. Open your browser and navigate to:
+
+    **[https://aspenini.github.io/Memory-Pak](https://aspenini.github.io/Memory-Pak)**
+
+    The app runs entirely in your browser using WebAssembly. Your collection state is automatically saved to browser localStorage — it persists across page refreshes but is tied to the specific browser and device you use.
+
+    <Note>
+      Because the web version uses localStorage, clearing your browser data will erase your collection. Use **Export** regularly to keep a portable JSON backup you can restore later.
+    </Note>
+  </Tab>
+</Tabs>
+
+## System requirements
+
+Memory Pak has no runtime dependencies — all game data is embedded in the binary. Any modern 64-bit Windows, macOS, or Linux machine can run the desktop app. The web version requires a browser with WebAssembly support (all current major browsers qualify).

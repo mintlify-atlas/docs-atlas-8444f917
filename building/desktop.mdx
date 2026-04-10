@@ -1,0 +1,91 @@
+---
+title: "Build Memory Pak as a Native Desktop Binary"
+description: "Compile Memory Pak into a self-contained native binary for Linux, macOS, or Windows with release profile settings and embedded assets."
+---
+
+The desktop build produces a single, fully self-contained binary. The entire game database is compiled in at build time, so there are no external data files to manage or distribute. On first launch the binary writes user state to a platform-specific directory; nothing else is needed on the target machine beyond the binary itself.
+
+## Prerequisites
+
+- Rust stable toolchain — install from [rustup.rs](https://rustup.rs)
+- Cargo (included with the Rust toolchain)
+
+## Building for release
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/Aspenini/Memory-Pak.git
+    cd Memory-Pak
+    ```
+  </Step>
+  <Step title="Compile with release optimizations">
+    ```bash
+    cargo build --release
+    ```
+
+    Cargo downloads all dependencies and compiles the project with the settings in `[profile.release]`. The first build takes longer as dependencies are compiled from scratch; subsequent builds reuse the cache.
+  </Step>
+  <Step title="Locate the binary">
+    The compiled binary is placed in `target/release/`:
+
+    | Platform | Path |
+    |---|---|
+    | Linux | `target/release/memory_pak` |
+    | macOS | `target/release/memory_pak` |
+    | Windows | `target/release/memory_pak.exe` |
+
+    You can copy this single file to any location or distribute it as-is.
+  </Step>
+</Steps>
+
+## Development build
+
+For a faster compile cycle during development, omit `--release`:
+
+```bash
+cargo build
+```
+
+The debug binary is placed in `target/debug/memory_pak[.exe]`. Debug builds skip link-time optimization and use the default opt level, so compile times are much shorter but the binary is larger and runs slower.
+
+To build and run in a single step:
+
+```bash
+# Release
+cargo run --release
+
+# Debug
+cargo run
+```
+
+## Release profile settings
+
+The `[profile.release]` section in `Cargo.toml` configures three settings that minimise binary size:
+
+| Setting | Value | Effect |
+|---|---|---|
+| `opt-level` | `"z"` | Optimize for binary size rather than speed |
+| `lto` | `true` | Enable link-time optimization across all crates |
+| `codegen-units` | `1` | Single codegen unit for maximum optimization (slower compile) |
+
+<Tip>
+  `opt-level = "z"` prioritizes the smallest possible output. If you need maximum runtime throughput instead, you can override this locally with `opt-level = 3` in a `[profile.release.override]` or by passing `CARGO_PROFILE_RELEASE_OPT_LEVEL=3` at build time.
+</Tip>
+
+## What gets embedded at compile time
+
+Memory Pak uses two forms of compile-time asset embedding:
+
+**Game database** — The `database/` directory (one JSON file per console) is embedded using the `include_dir!("database")` macro from the `include_dir` crate. At runtime the application reads game data directly from memory; no filesystem access to the database is required.
+
+**App icon** — The build script and eframe integration embed the icon at compile time:
+
+| Platform | Icon source |
+|---|---|
+| Windows | `icons/windows/AppIcon.ico` |
+| All others (fallback) | `icons/web/icon-512.png` |
+
+<Note>
+  Because the database is baked into the binary, adding or changing game data requires a recompile. User state (owned, favorited, wishlist, notes) is stored separately in the platform user data directory and is never affected by rebuilds.
+</Note>

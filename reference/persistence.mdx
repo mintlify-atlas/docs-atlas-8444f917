@@ -1,0 +1,184 @@
+---
+title: "Persistence: Save, Load, and Storage Paths Reference"
+description: "Technical reference for Memory Pak debounced save system, native file paths, web localStorage keys, JSON file format, and import/export structure."
+---
+
+Memory Pak persists all user state — owned flags, favorites, wishlists, and notes — without a database or external service. On desktop it writes JSON files to a platform-specific data directory; in the browser it reads and writes `localStorage`. The same Rust source handles both targets through conditional compilation (`#[cfg(target_arch = "wasm32")]`).
+
+## Debounced save system
+
+Writes are not issued immediately when the user makes a change. Instead, a 500 ms debounce coalesces rapid interactions into a single write, preventing thrashing on every keypress in a notes field.
+
+<Steps>
+  <Step title="User makes a change">
+    The rendering function sets the relevant pending flag to `true`:
+
+    - `pending_console_save` — a console's owned/favorite/wishlist/notes changed
+    - `pending_game_save` — any game state changed
+    - `pending_lego_save` — a LEGO Dimensions figure state changed
+    - `pending_skylanders_save` — a Skylanders figure state changed
+
+    No I/O happens here.
+  </Step>
+  <Step title="Cache invalidation">
+    On the first frame after `pending_game_save` is set (while `last_save_time` is `None`), `invalidate_game_counts_cache()` rebuilds the `game_counts_by_console` map so the Consoles tab shows updated counts before the write completes.
+  </Step>
+  <Step title="maybe_flush_saves() called each frame">
+    `eframe::App::update` calls `maybe_flush_saves()` every frame. The function first checks whether any flag is set. If none are set it returns immediately.
+  </Step>
+  <Step title="Debounce check">
+    If at least one flag is set, the elapsed time since `last_save_time` is checked:
+
+    - **Native:** `last_save_time: Option<std::time::Instant>` → `.elapsed().as_millis()`
+    - **WASM:** `last_save_time: Option<f64>` (milliseconds) → `performance.now() - last_save_time`
+
+    If fewer than 500 ms have elapsed, the function returns without writing.
+  </Step>
+  <Step title="Flush all pending saves">
+    All flags that are `true` are flushed in sequence. Game states are grouped by console ID before writing — one file (or localStorage key) per console. After all writes, `last_save_time` is updated to the current time.
+  </Step>
+</Steps>
+
+## Storage locations
+
+<Tabs>
+  <Tab title="Native (desktop)">
+    The state directory is resolved once per call to `get_state_dir()` using the [`directories`](https://crates.io/crates/directories) crate:
+
+    ```rust
+    ProjectDirs::from("com", "memorypak", "memory_pak")
+        .data_dir()
+        .join("state")
+    ```
+
+    Platform-specific paths:
+
+    | Platform | Path |
+    |---|---|
+    | Windows | `%APPDATA%\com\memorypak\memory_pak\state\` |
+    | macOS | `~/Library/Application Support/com.memorypak.memory_pak/state/` |
+    | Linux | `~/.local/share/com/memorypak/memory_pak/state/` |
+
+    The directory is created automatically by `fs::create_dir_all` if it does not exist.
+
+    **Files written:**
+
+    | File | Contents |
+    |---|---|
+    | `{console_id}.json` | `Vec<GameState>` for that console (e.g. `nes.json`) |
+    | `consoles.json` | `Vec<ConsoleState>` for all consoles |
+    | `lego_dimensions.json` | `Vec<LegoDimensionState>` |
+    | `skylanders.json` | `Vec<SkylanderState>` |
+
+    All files are written with `serde_json::to_string_pretty`, producing human-readable indented JSON.
+  </Tab>
+  <Tab title="Web (WASM)">
+    The web build has no filesystem access. All state is stored in the browser's `localStorage` under the following keys:
+
+    | Key | Contents |
+    |---|---|
+    | `memory_pak_console_states` | `Vec<ConsoleState>` as a JSON array |
+    | `memory_pak_state_{console_id}` | `Vec<GameState>` for that console (e.g. `memory_pak_state_nes`) |
+    | `memory_pak_lego_dimensions_states` | `Vec<LegoDimensionState>` as a JSON array |
+    | `memory_pak_skylanders_states` | `Vec<SkylanderState>` as a JSON array |
+
+    Web writes use `serde_json::to_string` (compact, not pretty-printed) since indentation has no benefit in `localStorage`.
+
+    `get_state_dir()` returns `None` on WASM — no path-based helpers are called on the web target.
+  </Tab>
+</Tabs>
+
+## Public API
+
+These functions are exported from `src/persistence.rs` and called from `main.rs`:
+
+```rust
+// Save
+pub fn save_game_states(console_id: &str, states: &HashMap<String, GameState>) -> bool
+pub fn save_console_states(states: &HashMap<String, ConsoleState>) -> bool
+pub fn save_lego_dimensions_states(states: &HashMap<String, LegoDimensionState>) -> bool
+pub fn save_skylanders_states(states: &HashMap<String, SkylanderState>) -> bool
+
+// Load
+pub fn load_all_game_states_flat() -> HashMap<String, GameState>
+pub fn load_all_console_states() -> HashMap<String, ConsoleState>
+pub fn load_lego_dimensions_states() -> HashMap<String, LegoDimensionState>
+pub fn load_skylanders_states() -> HashMap<String, SkylanderState>
+
+// Path helpers (native only — return None on WASM)
+pub fn get_state_dir() -> Option<PathBuf>
+pub fn get_state_file_path(console_id: &str) -> Option<PathBuf>
+pub fn get_lego_dimensions_state_file_path() -> Option<PathBuf>
+pub fn get_skylanders_state_file_path() -> Option<PathBuf>
+pub fn get_console_states_file_path() -> Option<PathBuf>
+```
+
+### load_all_game_states_flat
+
+On native, this function reads the state directory and loads every `.json` file it finds (skipping `consoles.json`), merging all results into a single `HashMap<String, GameState>`. It does not need a hardcoded list of consoles — it discovers files dynamically.
+
+On WASM, there is no directory to enumerate. Instead, the function iterates over a hardcoded list of known console IDs and loads each one's `localStorage` key:
+
+```text
+nes, snes, n64, gamecube, wii, wiiu, switch, gb, gbc, gba, ds, 3ds,
+genesis, mastersystem, saturn, dreamcast, sg1000, segacd, sega32x,
+gamegear, pico, ps1, ps2, ps3, ps4, ps5, psp, psvita,
+xbox, xbox360, xboxone, xboxseries
+```
+
+<Note>
+When a new console is added to the database, its console ID must also be added to this hardcoded list in `load_all_game_states_flat` so that the WASM build can load its saved states.
+</Note>
+
+## JSON file format
+
+All state files store a JSON array. Each element corresponds to one item and carries only the fields that can be user-modified:
+
+```json
+[
+  {
+    "game_id": "nes-a1b2c3d4e5f67890",
+    "owned": true,
+    "favorite": false,
+    "wishlist": false,
+    "notes": "Boxed copy, bought 1990"
+  }
+]
+```
+
+The `GameState`, `ConsoleState`, `LegoDimensionState`, and `SkylanderState` structs all derive `#[derive(Default)]`, so any fields absent from a stored file deserialize to their zero values (`false`, empty string).
+
+## Export and import format
+
+The full collection is exported as a single JSON document via `export_data` / `import_data` in `persistence.rs`. The document version is currently `"1.0"`.
+
+```json
+{
+  "version": "1.0",
+  "export_date": "2024-01-01T00:00:00Z",
+  "console_states": [ /* Vec<ConsoleState> */ ],
+  "consoles": [
+    {
+      "console_id": "nes",
+      "games": [ /* Vec<GameState> */ ]
+    }
+  ],
+  "lego_dimensions_states": [ /* Vec<LegoDimensionState> */ ],
+  "skylanders_states": [ /* Vec<SkylanderState> */ ]
+}
+```
+
+<Tabs>
+  <Tab title="Native export/import">
+    Uses [`rfd`](https://crates.io/crates/rfd) to open native file dialogs. Export writes to the user-chosen path with `serde_json::to_string_pretty`. Import reads the file, deserializes into `ExportData`, and merges each collection into the live state maps before immediately writing all state files.
+  </Tab>
+  <Tab title="Web export/import">
+    **Export:** Creates a `Blob` from the JSON string, generates an object URL, programmatically clicks a hidden `<a download>` element, then revokes the URL.
+
+    **Import:** Sets `ui_state.needs_import = true`, which causes `update()` to render a modal `egui::Window` containing a multiline text field. The user pastes their export JSON and clicks Import. The same merge-and-save logic as the native path runs inline.
+  </Tab>
+</Tabs>
+
+<Warning>
+Import merges state — it does not replace it. If the import file contains a game ID that already has state, the imported values overwrite the existing ones. There is no conflict resolution or undo.
+</Warning>

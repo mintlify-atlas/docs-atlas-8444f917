@@ -1,0 +1,138 @@
+---
+title: "Exporting and importing your collection backup"
+description: "Back up your entire Memory Pak collection to a JSON file and restore it on any platform — desktop or web — without losing existing data."
+---
+
+Memory Pak lets you export your full collection state — consoles, games, LEGO Dimensions figures, and Skylanders — into a single JSON file. You can import that file later to restore or merge your data, whether you're moving between devices or recovering after reinstalling the app.
+
+## Exporting your collection
+
+Exporting produces a file named `memory_pak_export.json` containing all of your current owned, favorite, wishlist, and notes data.
+
+<Steps>
+  <Step title="Open Memory Pak">
+    Launch the app on desktop or open it in your browser.
+  </Step>
+  <Step title="Click Export in the toolbar">
+    Find the **Export** button in the top toolbar, next to the **Import** button.
+  </Step>
+  <Step title="Save the file">
+    <Tabs>
+      <Tab title="Desktop">
+        A native file save dialog opens. Choose a location and confirm. The file is saved as `memory_pak_export.json`.
+      </Tab>
+      <Tab title="Web">
+        Your browser automatically downloads `memory_pak_export.json` to your default downloads folder. No dialog is shown — the download starts immediately.
+      </Tab>
+    </Tabs>
+  </Step>
+</Steps>
+
+<Tip>
+  Export your collection before applying a database update. Game IDs use a stable hash format (`{console_id}-{hash}`), so IDs are preserved across updates — but having a backup gives you a fallback if anything unexpected changes.
+</Tip>
+
+## Importing a backup
+
+Importing merges the contents of a backup file into your current collection. Existing states are kept; imported states are added or updated on top of them.
+
+<Steps>
+  <Step title="Click Import in the toolbar">
+    Find the **Import** button in the top toolbar.
+  </Step>
+  <Step title="Provide the JSON file">
+    <Tabs>
+      <Tab title="Desktop">
+        A native file picker opens. Select a `.json` export file from your filesystem.
+      </Tab>
+      <Tab title="Web">
+        An **Import Data** dialog appears inside the app. Paste the full contents of your `memory_pak_export.json` file into the text field, then click **Import**.
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Confirm the merge">
+    Memory Pak reads the file and merges all console states, game states, LEGO Dimensions states, and Skylanders states into your active collection. All merged data is immediately saved to local storage.
+  </Step>
+</Steps>
+
+<Warning>
+  The web version does not have a file picker. You must open your `memory_pak_export.json` in a text editor, copy the full JSON text, and paste it into the **Import Data** dialog manually.
+</Warning>
+
+## Export file format
+
+The export file is a UTF-8 JSON document. Here is a complete example showing every top-level field:
+
+```json
+{
+  "version": "1.0",
+  "export_date": "2024-01-01T00:00:00Z",
+  "console_states": [
+    {
+      "console_id": "nes",
+      "owned": true,
+      "favorite": false,
+      "wishlist": false,
+      "notes": "My original NES from 1985"
+    }
+  ],
+  "consoles": [
+    {
+      "console_id": "nes",
+      "games": [
+        {
+          "game_id": "nes-a1b2c3d4e5f6...",
+          "owned": true,
+          "favorite": false,
+          "wishlist": false,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "lego_dimensions_states": [
+    {
+      "figure_id": "lego-starter-pack-batman",
+      "owned": true,
+      "favorite": false,
+      "wishlist": false,
+      "notes": ""
+    }
+  ],
+  "skylanders_states": [
+    {
+      "skylander_id": "skylander-spyro-s-adventure-spyro-core-skylanders",
+      "owned": true,
+      "favorite": true,
+      "wishlist": false,
+      "notes": "Series 1"
+    }
+  ]
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Field reference">
+    | Field | Type | Description |
+    | --- | --- | --- |
+    | `version` | string | Export format version. Currently `"1.0"`. |
+    | `export_date` | string | ISO 8601 timestamp of when the export was created. |
+    | `console_states` | array | One entry per console you have interacted with. |
+    | `consoles` | array | One entry per console, each containing an array of `games`. |
+    | `lego_dimensions_states` | array | States for all LEGO Dimensions figures. |
+    | `skylanders_states` | array | States for all Skylanders figures. |
+  </Accordion>
+  <Accordion title="State object fields">
+    Every state object — whether for a console, game, figure, or Skylander — shares the same four tracking fields:
+
+    | Field | Type | Description |
+    | --- | --- | --- |
+    | `owned` | boolean | Whether you own this item. |
+    | `favorite` | boolean | Whether you have marked this item as a favorite. |
+    | `wishlist` | boolean | Whether this item is on your wishlist. |
+    | `notes` | string | Your freeform notes for this item. |
+  </Accordion>
+  <Accordion title="Game ID format">
+    Game IDs follow the pattern `{console_id}-{hash}`, for example `nes-a1b2c3d4e5f6`. The hash is derived from the console ID and game title, so IDs remain stable across game database updates. This means an export from an older version of Memory Pak will continue to match correctly after you update.
+  </Accordion>
+</AccordionGroup>

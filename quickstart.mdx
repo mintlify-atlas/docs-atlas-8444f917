@@ -1,80 +1,105 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "Quickstart: track your first console and game"
+description: "Get Memory Pak running and mark your first console and game as owned in under five minutes. Covers the sidebar, filter controls, notes, and your first export."
 ---
 
-## Get started in three steps
+Memory Pak launches directly into your collection — no sign-up, no configuration file, no internet connection required. This guide walks you through the core workflow: finding a console, marking it as owned, locating a game, and exporting a backup of your collection state.
 
-Get your documentation site running locally and make your first customization.
+## App layout
 
-### Step 1: Set up your local environment
+When Memory Pak opens you'll see three areas:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+- **Sidebar** (left) — four tabs: Consoles, Games, LEGO Dimensions, Skylanders. On screens narrower than 700 px, tap ☰ to toggle the sidebar.
+- **Main panel** (center) — the active tab's content with search, sort, and filter controls at the top.
+- **Toolbar** (top) — the app title, **Import** button, and **Export** button.
 
-### Step 2: Deploy your changes
+## Track your first console
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+<Steps>
+  <Step title="Open the Consoles tab">
+    Click **Consoles** in the sidebar. You'll see all supported platforms listed in pages of 20 consoles each.
+  </Step>
+  <Step title="Find your console">
+    Use the **Search** box to type part of the console name or manufacturer (e.g., "Nintendo" or "NES"). You can also use the **Sort by** options (Title, Year, Status) or **Filter** (All, Owned, Favorites, Wishlist, Not Owned) to narrow the list.
+  </Step>
+  <Step title="Mark it as owned">
+    In the console card, check the **Owned** checkbox. The change is saved automatically within 500 ms — no save button needed.
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    You can also check **Favorite** and **Wishlist** simultaneously if you want to flag it multiple ways.
+  </Step>
+  <Step title="Add a note (optional)">
+    Click in the **Notes** text box on the console card and type anything you want to remember — serial number, condition, where you got it.
+  </Step>
+</Steps>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## Track your first game
 
-### Step 3: Go live
+<Steps>
+  <Step title="Open the Games tab">
+    Click **Games** in the sidebar.
+  </Step>
+  <Step title="Select a console">
+    Use the **Select Console** dropdown at the top of the tab. Choose a specific console to see only its games, or select **All Consoles** to search across every platform at once.
+  </Step>
+  <Step title="Find a game">
+    Type in the **Search** box to filter by title. The search is Unicode-aware — accented characters match their base form (é matches e), and punctuation like apostrophes and colons is ignored, so `Zelda` matches `The Legend of Zelda`.
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    You can also sort by **Title**, **Year**, or **Status**, and filter by **All**, **Owned**, **Favorites**, **Wishlist**, or **Not Owned**.
+  </Step>
+  <Step title="Mark it">
+    In the game card, check **Owned**, **Favorite**, and/or **Wishlist**. Add notes in the Notes field. Changes save automatically.
+  </Step>
+</Steps>
+
+<Tip>
+  Games are paginated — 50 per page. If you don't see a title, check you're on the right page or refine your search query.
+</Tip>
+
+## Filter and sort reference
+
+Both the Consoles and Games tabs share the same control set:
+
+| Control | Options |
+|---------|---------|
+| Sort by | Title, Year, Status |
+| Filter  | All, Owned, Favorites, Wishlist, Not Owned |
+| Search  | Free-text; Unicode-normalized |
+
+**Status sort order**: Owned → Favorite → Wishlist → unmarked
+
+## Export your collection
+
+<Steps>
+  <Step title="Click Export in the toolbar">
+    The **Export** button is in the top toolbar alongside the app title.
+  </Step>
+  <Step title="Save the file">
+    **Desktop**: a native file save dialog opens. Save as `memory_pak_export.json` (or any name you prefer).
+
+    **Web browser**: a file named `memory_pak_export.json` downloads automatically.
+  </Step>
+  <Step title="Store it somewhere safe">
+    Copy the file to cloud storage, a USB drive, or email it to yourself. This JSON file contains your complete collection state and can be imported back at any time.
+  </Step>
+</Steps>
+
+<Tip>
+  Export regularly — especially before installing a new version of Memory Pak. The export file is the only way to transfer your collection between devices or restore after reinstalling.
+</Tip>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Consoles tab guide" icon="gamepad" href="/guides/consoles">
+    Learn about game count summaries, pagination, and responsive layout behavior
+  </Card>
+  <Card title="Games tab guide" icon="compact-disc" href="/guides/games">
+    Deep dive into cross-console search, console badges, and the all-consoles view
+  </Card>
+  <Card title="Import / Export" icon="arrows-rotate" href="/guides/import-export">
+    Full reference for the backup format, import merging, and platform differences
+  </Card>
+  <Card title="Data storage" icon="hard-drive" href="/guides/data-storage">
+    Where Memory Pak stores your data on each platform and how saves are debounced
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

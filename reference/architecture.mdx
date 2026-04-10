@@ -1,0 +1,198 @@
+---
+title: "Memory Pak Architecture: Modules and Code Structure"
+description: "A technical walkthrough of Memory Pak module layout, MemoryPakApp state fields, Tab enum, data loading lifecycle, and responsive layout breakpoints."
+---
+
+Memory Pak is a single-binary Rust application built on [egui](https://github.com/emilk/egui) and [eframe](https://github.com/emilk/egui/tree/master/crates/eframe). All game data is compiled directly into the binary at build time, and the same codebase targets both native desktop and WebAssembly with conditional compilation.
+
+## Module layout
+
+The source tree is flat — seven modules with clearly separated responsibilities.
+
+```text
+src/
+├── main.rs              — MemoryPakApp struct, eframe::App impl, entry points
+├── console_data.rs      — Loads console definitions from database/consoles.json
+├── game_data.rs         — Loads all game JSON files via include_dir!("database")
+├── persistence.rs       — Save/load state (native files + web localStorage)
+├── ui.rs                — All egui rendering functions
+├── lego_dimensions.rs   — LEGO Dimensions data structs and loading
+└── skylanders.rs        — Skylanders data structs and loading
+```
+
+<AccordionGroup>
+  <Accordion title="main.rs">
+    Owns the top-level `MemoryPakApp` struct and its `eframe::App` implementation. Houses all cross-cutting state (game states, console states, UI state, debounce flags). Also defines shared types: `Console`, `Game`, `GameState`, `ConsoleState`, `ExportData`, and the `Tab` / `SortOption` / `FilterOption` enums. Contains platform-specific `main()` entry points (see [Cross-platform entry points](#cross-platform-entry-points)).
+  </Accordion>
+  <Accordion title="console_data.rs">
+    Provides `get_hardcoded_consoles()`, which parses `database/consoles.json` embedded via `include_str!` and returns a `Vec<Console>`. Console definitions include id, name, manufacturer, year, and an optional variant field.
+  </Accordion>
+  <Accordion title="game_data.rs">
+    Uses `include_dir!("database")` to embed the entire `database/` directory at compile time. `load_embedded_games()` walks every `.json` file in the embedded directory, maps filenames to console IDs (e.g. `gameboy` → `gb`, `playstation` → `ps1`), and returns a flat `HashMap<String, Game>` keyed by stable game ID. See [stable-ids](/reference/stable-ids) for ID generation details.
+  </Accordion>
+  <Accordion title="persistence.rs">
+    All save and load logic lives here. Exposes `save_game_states`, `load_all_game_states_flat`, `save_console_states`, `load_all_console_states`, plus LEGO Dimensions and Skylanders equivalents. Uses `#[cfg(not(target_arch = "wasm32"))]` / `#[cfg(target_arch = "wasm32")]` blocks to branch between filesystem I/O and `localStorage` without any runtime dispatch. See [persistence](/reference/persistence) for full details.
+  </Accordion>
+  <Accordion title="ui.rs">
+    Contains all egui rendering: `render_consoles_tab`, `render_games_tab`, `render_lego_dimensions_tab`, `render_skylanders_tab`, plus helper utilities for search normalization (`normalize_for_search` strips diacritics and punctuation), responsive breakpoints, and import/export entry points. At 1,267 lines it is the largest file in the project.
+  </Accordion>
+  <Accordion title="lego_dimensions.rs">
+    Defines `LegoDimensionFigure` and `LegoDimensionState`, provides `load_lego_dimensions_figures()` (parses `database/legodimensions.json` via `include_str!`), and the `figure_id()` function that constructs stable slug-based IDs.
+  </Accordion>
+  <Accordion title="skylanders.rs">
+    Mirrors `lego_dimensions.rs` for Skylanders: `Skylander`, `SkylanderState`, `load_skylanders()`, and `skylander_id()`.
+  </Accordion>
+</AccordionGroup>
+
+## MemoryPakApp state
+
+`MemoryPakApp` is the single application struct passed to eframe. All mutable state lives here — there are no separate stores or contexts.
+
+```rust
+struct MemoryPakApp {
+    // Selection
+    selected_console: Option<String>,    // "all" or a console_id
+
+    // Data (loaded lazily on first frame)
+    games: HashMap<String, Game>,        // game_id -> Game
+    consoles: Vec<Console>,
+    lego_dimensions_figures: Vec<LegoDimensionFigure>,
+    skylanders: Vec<Skylander>,
+
+    // User state
+    game_states: HashMap<String, GameState>,               // game_id -> GameState
+    console_states: HashMap<String, ConsoleState>,         // console_id -> ConsoleState
+    lego_dimensions_states: HashMap<String, LegoDimensionState>,
+    skylanders_states: HashMap<String, SkylanderState>,
+
+    // UI
+    ui_state: UiState,
+
+    // Cache
+    game_counts_by_console: HashMap<String, (usize, usize, usize)>, // (owned, fav, wishlist)
+
+    // Lifecycle
+    data_loaded: bool,
+
+    // Save debounce
+    pending_console_save: bool,
+    pending_game_save: bool,
+    pending_lego_save: bool,
+    pending_skylanders_save: bool,
+    last_save_time: Option<Instant>, // f64 on WASM
+}
+```
+
+`UiState` bundles every piece of transient UI state so it can be passed independently to rendering functions:
+
+| Field | Purpose |
+|---|---|
+| `active_tab` | Which `Tab` variant is visible |
+| `sort_by` / `console_sort_by` | `SortOption` for games and consoles |
+| `filter_by` / `console_filter_by` | `FilterOption` for games and consoles |
+| `search_query` / `console_search_query` | Raw search input strings |
+| `*_query_lower` | Cached lowercase versions for hot-path comparisons |
+| `games_page` / `consoles_page` | Current pagination index (0-based) |
+| `lego_sort_by` / `skylanders_sort_by` | Collection-specific sort options |
+| `sidebar_visible` | Toggled by the hamburger menu on narrow screens |
+
+## Tab enum
+
+```rust
+#[derive(Default, PartialEq)]
+enum Tab {
+    #[default]
+    Consoles,
+    Games,
+    LegoDimensions,
+    Skylanders,
+}
+```
+
+`Tab::Consoles` is the default. The active tab is stored in `UiState::active_tab` and drives which `render_*_tab` function is called in `eframe::App::update`.
+
+## Data loading lifecycle
+
+Data is loaded lazily on the first call to `update()` rather than at startup. This keeps the initial window show fast, especially on WASM where I/O is asynchronous.
+
+<Steps>
+  <Step title="First frame: load all data">
+    When `data_loaded` is `false`, `update()` calls `get_hardcoded_consoles()`, `load_embedded_games()`, `load_all_game_states_flat()`, `load_all_console_states()`, `load_lego_dimensions_figures()`, `load_lego_dimensions_states()`, `load_skylanders()`, and `load_skylanders_states()`. The game count cache is computed immediately after, and `data_loaded` is set to `true`.
+  </Step>
+  <Step title="User interaction: set pending flag">
+    When the user toggles owned/favorite/wishlist or edits a note, the relevant `pending_*_save` flag is set to `true`. No I/O happens at this point.
+  </Step>
+  <Step title="Cache invalidation">
+    When `pending_game_save` is first set and `last_save_time` is `None`, the game count cache is invalidated immediately so the console list reflects the change before the debounce fires.
+  </Step>
+  <Step title="Every frame: maybe_flush_saves()">
+    `maybe_flush_saves()` checks whether 500 ms have elapsed since `last_save_time`. On native it uses `std::time::Instant::elapsed()`; on WASM it uses `performance.now()`. If no time has passed, the function returns early with no I/O.
+  </Step>
+  <Step title="Debounce expires: write to storage">
+    After 500 ms, all pending saves are flushed. Game states are grouped by console ID before writing (one file / localStorage key per console). `last_save_time` is updated.
+  </Step>
+</Steps>
+
+<Note>
+The cache invalidation in step 3 only fires once per save cycle (when `last_save_time` is `None`). This prevents repeated cache rebuilds during the debounce window.
+</Note>
+
+## Responsive layout
+
+Screen width is read from `ctx.available_rect().width()` each frame and drives two boolean flags:
+
+| Flag | Threshold | Behavior |
+|---|---|---|
+| `is_narrow` | `< 700 px` | Controls become vertically stacked; hamburger menu appears; sidebar hides by default |
+| `is_mobile` | `< 500 px` | Stacked card layout; Import/Export buttons move below the title bar |
+
+On narrow screens the sidebar is hidden until the user taps `☰`. Selecting a tab auto-hides the sidebar again. On wide screens the sidebar is always visible and resizable.
+
+## Cross-platform entry points
+
+<Tabs>
+  <Tab title="Desktop (native)">
+    ```rust
+    #[cfg(not(target_arch = "wasm32"))]
+    fn main() -> Result<(), eframe::Error> {
+        let options = eframe::NativeOptions {
+            viewport: egui::ViewportBuilder::default()
+                .with_inner_size([1200.0, 800.0])
+                .with_title("Memory Pak"),
+            ..Default::default()
+        };
+        eframe::run_native(
+            "Memory Pak",
+            options,
+            Box::new(|_cc| Ok(Box::new(MemoryPakApp::default()))),
+        )
+    }
+    ```
+    The native build also loads a platform icon: `.ico` on Windows, falling back to the 512 × 512 PNG for macOS and Linux.
+  </Tab>
+  <Tab title="Web (WASM)">
+    ```rust
+    #[cfg(target_arch = "wasm32")]
+    fn main() {
+        console_error_panic_hook::set_once();
+        wasm_logger::init(wasm_logger::Config::default());
+
+        wasm_bindgen_futures::spawn_local(async {
+            let canvas = web_sys::window()
+                .unwrap().document().unwrap()
+                .get_element_by_id("memory_pak_canvas")
+                .unwrap()
+                .dyn_into::<web_sys::HtmlCanvasElement>()
+                .unwrap();
+
+            eframe::WebRunner::new()
+                .start(canvas, eframe::WebOptions::default(),
+                    Box::new(|_cc| Ok(Box::new(MemoryPakApp::default()))))
+                .await
+                .unwrap();
+        });
+    }
+    ```
+    The WASM build targets the `<canvas id="memory_pak_canvas">` element in the host HTML page. Panics are routed to `console.error` via `console_error_panic_hook`.
+  </Tab>
+</Tabs>

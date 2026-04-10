@@ -1,0 +1,196 @@
+---
+title: "Complete Console List Supported by Memory Pak"
+description: "Every console and hardware variant that Memory Pak tracks, organized by manufacturer, with console IDs, full names, and release years."
+---
+
+Memory Pak tracks consoles and hardware variants across seven manufacturers. Each console has a unique ID used throughout the app — in game database filenames, export files, and saved states. The full list is defined in `database/consoles.json`, which is embedded into the binary at compile time via `include_str!`.
+
+## Console struct
+
+Each entry in `consoles.json` deserializes into the following Rust struct defined in `src/main.rs`:
+
+<ResponseField name="id" type="string" required>
+  Short unique identifier for the console. Used as the key for console states, game IDs, and database filenames. Example: `"nes"`, `"ps2"`, `"switch"`.
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Full display name shown in the UI. Example: `"Nintendo Entertainment System"`.
+</ResponseField>
+
+<ResponseField name="manufacturer" type="string" required>
+  Console manufacturer. One of: `Nintendo`, `Sega`, `Sony`, `Microsoft`, `Atari`, `Meta`, `Oculus`, `NEC`, `SNK`, `Valve`, `Bandai`.
+</ResponseField>
+
+<ResponseField name="year" type="number" required>
+  Year of release for this hardware revision.
+</ResponseField>
+
+<ResponseField name="variant" type="string">
+  Optional hardware variant label. Defaults to `null` when not specified (uses `#[serde(default)]`).
+</ResponseField>
+
+## Consoles by manufacturer
+
+<AccordionGroup>
+  <Accordion title="Nintendo">
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `nes` | Nintendo Entertainment System | 1985 |
+| `nes-toploader` | Nintendo Entertainment System Top Loader | 1993 |
+| `snes` | Super Nintendo Entertainment System | 1990 |
+| `snes-jr` | Super Nintendo Entertainment System SNES Jr. | 1997 |
+| `n64` | Nintendo 64 | 1996 |
+| `gamecube` | Nintendo GameCube | 2001 |
+| `wii` | Nintendo Wii | 2006 |
+| `wii-mini` | Nintendo Wii Mini | 2012 |
+| `wiiu` | Nintendo Wii U | 2012 |
+| `switch` | Nintendo Switch | 2017 |
+| `switch-lite` | Nintendo Switch Lite | 2019 |
+| `switch-oled` | Nintendo Switch OLED Model | 2021 |
+| `gb` | Game Boy | 1989 |
+| `gb-pocket` | Game Boy Pocket | 1996 |
+| `gb-light` | Game Boy Light | 1998 |
+| `gbc` | Game Boy Color | 1998 |
+| `gba` | Game Boy Advance | 2001 |
+| `gba-sp` | Game Boy Advance SP | 2003 |
+| `gba-micro` | Game Boy Advance Micro | 2005 |
+| `ds` | Nintendo DS | 2004 |
+| `ds-lite` | Nintendo DS Lite | 2006 |
+| `dsi` | Nintendo DSi | 2008 |
+| `3ds` | Nintendo 3DS | 2011 |
+| `3ds-xl` | Nintendo 3DS XL | 2012 |
+| `new-3ds` | Nintendo New 3DS | 2014 |
+| `new-3ds-xl` | Nintendo New 3DS XL | 2014 |
+| `2ds` | Nintendo 2DS | 2013 |
+| `new-2ds-xl` | Nintendo New 2DS XL | 2017 |
+| `virtual-boy` | Virtual Boy | 1995 |
+| `game-watch` | Game & Watch | 1980 |
+
+  </Accordion>
+  <Accordion title="Sega">
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `sg1000` | SG-1000 | 1983 |
+| `mastersystem` | Sega Master System | 1985 |
+| `genesis` | Sega Genesis | 1988 |
+| `genesis-model2` | Sega Genesis Model 2 | 1993 |
+| `genesis-model3` | Sega Genesis Model 3 | 1997 |
+| `segacd` | Sega CD | 1991 |
+| `sega32x` | Sega 32X | 1994 |
+| `gamegear` | Game Gear | 1990 |
+| `pico` | Sega Pico | 1993 |
+| `saturn` | Sega Saturn | 1994 |
+| `saturn-model2` | Sega Saturn Model 2 | 1996 |
+| `dreamcast` | Sega Dreamcast | 1998 |
+
+  </Accordion>
+  <Accordion title="Sony">
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `ps1` | PlayStation | 1994 |
+| `psone` | PlayStation PSone | 2000 |
+| `ps2` | PlayStation 2 | 2000 |
+| `ps2-slim` | PlayStation 2 Slim | 2004 |
+| `ps3` | PlayStation 3 | 2006 |
+| `ps3-slim` | PlayStation 3 Slim | 2009 |
+| `ps3-super-slim` | PlayStation 3 Super Slim | 2012 |
+| `ps4` | PlayStation 4 | 2013 |
+| `ps4-slim` | PlayStation 4 Slim | 2016 |
+| `ps4-pro` | PlayStation 4 Pro | 2016 |
+| `ps5` | PlayStation 5 | 2020 |
+| `ps5-slim` | PlayStation 5 Slim | 2023 |
+| `ps5-pro` | PlayStation 5 Pro | 2024 |
+| `psp` | PlayStation Portable | 2004 |
+| `psp-2000` | PlayStation Portable Slim & Lite (2000) | 2007 |
+| `psp-3000` | PlayStation Portable 3000 | 2008 |
+| `psp-go` | PlayStation Portable Go | 2009 |
+| `psvita` | PlayStation Vita | 2011 |
+| `psvita-slim` | PlayStation Vita Slim (PCH-2000) | 2013 |
+
+  </Accordion>
+  <Accordion title="Microsoft">
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `xbox` | Xbox | 2001 |
+| `xbox360` | Xbox 360 | 2005 |
+| `xbox360-s` | Xbox 360 S (Slim) | 2010 |
+| `xbox360-e` | Xbox 360 E | 2013 |
+| `xboxone` | Xbox One | 2013 |
+| `xboxone-s` | Xbox One S | 2016 |
+| `xboxone-x` | Xbox One X | 2017 |
+| `xboxseries-x` | Xbox Series X | 2020 |
+| `xboxseries-s` | Xbox Series S | 2020 |
+
+  </Accordion>
+  <Accordion title="Atari">
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `atari2600` | Atari 2600 | 1977 |
+| `atari5200` | Atari 5200 | 1982 |
+| `atari7800` | Atari 7800 | 1986 |
+| `atari-lynx` | Atari Lynx | 1989 |
+| `atari-jaguar` | Atari Jaguar | 1993 |
+
+  </Accordion>
+  <Accordion title="Valve">
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `steam-deck` | Steam Deck | 2022 |
+| `steam-deck-oled` | Steam Deck OLED | 2023 |
+| `steam-machine` | Steam Machine | 2026 |
+| `steam-frame` | Steam Frame | 2026 |
+| `valve-index` | Valve Index | 2019 |
+
+  </Accordion>
+  <Accordion title="Other manufacturers">
+
+**Meta / Oculus**
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `oculus-quest-1` | Oculus Quest | 2019 |
+| `oculus-quest-2` | Oculus Quest 2 | 2020 |
+| `meta-quest-2` | Meta Quest 2 | 2020 |
+| `meta-quest-3` | Meta Quest 3 | 2023 |
+| `meta-quest-3s` | Meta Quest 3S | 2024 |
+
+**NEC**
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `turbografx-16` | TurboGrafx-16 | 1989 |
+| `pc-engine` | PC Engine | 1987 |
+
+**SNK**
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `neo-geo` | Neo Geo | 1990 |
+| `neo-geo-pocket` | Neo Geo Pocket | 1998 |
+| `neo-geo-pocket-color` | Neo Geo Pocket Color | 1999 |
+
+**Bandai**
+
+| Console ID | Name | Year |
+|------------|------|------|
+| `wonder-swan` | WonderSwan | 1999 |
+| `wonder-swan-color` | WonderSwan Color | 2000 |
+
+  </Accordion>
+</AccordionGroup>
+
+## Console IDs and game database filenames
+
+Console IDs are the canonical identifiers used throughout Memory Pak. When a game database file exists for a console, its filename in `database/` may differ from the console ID. See the [game database reference](/reference/game-database#filename-to-console-id-mapping) for the full mapping table.
+
+Not every console in this list has a corresponding game database file. Consoles without a game database file (for example, `ps4`, `xboxone`, `switch`, and all hardware variants) can still be tracked as owned, favorited, or wishlisted — they simply have no game list to browse.
+
+<Note>
+  Console IDs used in [export files](/reference/export-format) must exactly match the `id` values in this list. An export file that references an unknown console ID will import without error — the unknown states are merged into the app's state map and will appear if a matching console is added in a future release.
+</Note>

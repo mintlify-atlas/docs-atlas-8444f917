@@ -1,0 +1,151 @@
+---
+title: "Embedded Game Database Format and File Reference"
+description: "The JSON schema for Memory Pak game database files, how stable IDs are generated from title and console ID, and the full list of 28 embedded files."
+---
+
+Memory Pak ships with a built-in game library covering 28 consoles. All game data lives in JSON files inside the `database/` directory and is compiled directly into the binary at build time using the [`include_dir!`](https://docs.rs/include_dir) macro — no external files are read at runtime. Each file follows the same schema and maps to exactly one console.
+
+## How the database loads
+
+At startup, `load_embedded_games()` in `src/game_data.rs` iterates every `.json` file embedded under `database/`. For each file it:
+
+1. Resolves the console ID from the filename using `map_filename_to_console_id()`.
+2. Parses the file as `Vec<DatabaseGame>`.
+3. Generates a [stable ID](#stable-id-generation) for every game.
+4. Returns all games as a flat `HashMap<String, Game>` keyed by stable game ID.
+
+The `consoles.json` file is excluded from this process — it is loaded separately via `include_str!` to populate the console list.
+
+## Game entry format
+
+Each file in `database/` is a JSON array of game objects with the following fields.
+
+<ResponseField name="title" type="string" required>
+  Full display title of the game. Used as one of the two inputs to the stable ID hash.
+</ResponseField>
+
+<ResponseField name="publisher" type="string" required>
+  Publisher name as it appears in the original release credits.
+</ResponseField>
+
+<ResponseField name="release_date" type="string | null">
+  Release date in ISO 8601 format (`"YYYY-MM-DD"`), or `null` when the date is unknown. The year component is extracted from this field to populate the `year` field on the in-memory `Game` struct. When `null`, year defaults to `0`.
+</ResponseField>
+
+<Note>
+  The NES database also includes `developer` and `pal_release` fields in many entries. These fields are not part of the `DatabaseGame` struct and are silently ignored during parsing.
+</Note>
+
+### Sample entry
+
+```json nes.json (excerpt)
+[
+  {
+    "title": "Super Mario Bros.",
+    "publisher": "Nintendo",
+    "release_date": "1985-10-18"
+  },
+  {
+    "title": "Metroid",
+    "publisher": "Nintendo",
+    "release_date": "1986-08-06"
+  },
+  {
+    "title": "Stadium Events",
+    "publisher": "Bandai",
+    "release_date": null
+  }
+]
+```
+
+## Stable ID generation
+
+Game IDs are content-addressed rather than sequential. The `generate_stable_id()` function in `src/game_data.rs` constructs an ID by hashing the console ID and the game title together using Rust's `DefaultHasher`:
+
+```text
+game_id = "{console_id}-{hex_hash}"
+```
+
+Both the console ID string and the title string are fed to `DefaultHasher` in sequence. The resulting `u64` is formatted as a lowercase hex string. Example:
+
+```text
+nes-a1b2c3d4e5f67890
+```
+
+<Note>
+  IDs are stable as long as neither the console ID nor the game title changes. Updating a game's publisher, release date, or any other field does not affect its ID. This design lets the database be updated between releases without invalidating your saved collection states.
+</Note>
+
+## Filename to console ID mapping
+
+Most database filenames match their console ID directly. A small set of files use descriptive names that differ from the short IDs used everywhere else in the app. The `map_filename_to_console_id()` function handles the translation:
+
+| Database filename   | Console ID |
+|---------------------|------------|
+| `gameboy`           | `gb`       |
+| `gameboycolor`      | `gbc`      |
+| `gameboyadvance`    | `gba`      |
+| `nintendods`        | `ds`       |
+| `nintendo3ds`       | `3ds`      |
+| `playstation`       | `ps1`      |
+| `playstation2`      | `ps2`      |
+| `playstation3`      | `ps3`      |
+| All others          | Same as filename |
+
+## Available database files
+
+<Tabs>
+  <Tab title="Nintendo">
+    | Filename | Console ID | Platform |
+    |----------|------------|----------|
+    | `nes.json` | `nes` | Nintendo Entertainment System |
+    | `snes.json` | `snes` | Super Nintendo Entertainment System |
+    | `n64.json` | `n64` | Nintendo 64 |
+    | `gamecube.json` | `gamecube` | Nintendo GameCube |
+    | `wii.json` | `wii` | Nintendo Wii |
+    | `wiiu.json` | `wiiu` | Nintendo Wii U |
+    | `gameboy.json` | `gb` | Game Boy |
+    | `gameboycolor.json` | `gbc` | Game Boy Color |
+    | `gameboyadvance.json` | `gba` | Game Boy Advance |
+    | `nintendods.json` | `ds` | Nintendo DS |
+    | `nintendo3ds.json` | `3ds` | Nintendo 3DS |
+  </Tab>
+  <Tab title="Sega">
+    | Filename | Console ID | Platform |
+    |----------|------------|----------|
+    | `sg1000.json` | `sg1000` | SG-1000 |
+    | `mastersystem.json` | `mastersystem` | Sega Master System |
+    | `genesis.json` | `genesis` | Sega Genesis |
+    | `segacd.json` | `segacd` | Sega CD |
+    | `sega32x.json` | `sega32x` | Sega 32X |
+    | `gamegear.json` | `gamegear` | Game Gear |
+    | `pico.json` | `pico` | Sega Pico |
+    | `saturn.json` | `saturn` | Sega Saturn |
+    | `dreamcast.json` | `dreamcast` | Sega Dreamcast |
+  </Tab>
+  <Tab title="Sony">
+    | Filename | Console ID | Platform |
+    |----------|------------|----------|
+    | `playstation.json` | `ps1` | PlayStation |
+    | `playstation2.json` | `ps2` | PlayStation 2 |
+    | `playstation3.json` | `ps3` | PlayStation 3 |
+    | `psp.json` | `psp` | PlayStation Portable |
+    | `playstationvita.json` | `playstationvita` | PlayStation Vita |
+  </Tab>
+  <Tab title="Microsoft">
+    | Filename | Console ID | Platform |
+    |----------|------------|----------|
+    | `xbox.json` | `xbox` | Xbox |
+    | `xbox360.json` | `xbox360` | Xbox 360 |
+  </Tab>
+  <Tab title="Toy lines">
+    | Filename | Console ID | Notes |
+    |----------|------------|-------|
+    | `legodimensions.json` | — | Loaded by `lego_dimensions.rs`, not part of the game database |
+    | `skylanders.json` | — | Loaded by `skylanders.rs`, not part of the game database |
+  </Tab>
+</Tabs>
+
+<Tip>
+  The `legodimensions.json` and `skylanders.json` files share the same `database/` directory but are not processed by `load_embedded_games()`. They are loaded directly by their respective modules using `include_str!` and have their own schemas.
+</Tip>

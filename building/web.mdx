@@ -1,0 +1,108 @@
+---
+title: "Build Memory Pak for the Web with WebAssembly"
+description: "Compile Memory Pak to WebAssembly using Trunk for a hot-reloading dev server and production dist build, or use wasm-pack for a JS-consumable package."
+---
+
+Memory Pak can run entirely in the browser as a WebAssembly application. The WASM build uses the same Rust source as the desktop build, but swaps native platform APIs for web equivalents: localStorage replaces the filesystem for state persistence, and a paste-JSON dialog replaces the native file picker for import. Two toolchains are supported — Trunk for full-app dev/production builds, and wasm-pack for producing a JavaScript-consumable package.
+
+## Prerequisites
+
+- Rust stable toolchain
+- `wasm32-unknown-unknown` compilation target
+- Trunk (for the Trunk workflow) or wasm-pack (for the wasm-pack workflow)
+
+## One-time setup
+
+<Steps>
+  <Step title="Add the WASM compilation target">
+    ```bash
+    rustup target add wasm32-unknown-unknown
+    ```
+  </Step>
+  <Step title="Install Trunk">
+    ```bash
+    cargo install trunk
+    ```
+
+    Trunk handles HTML templating, asset bundling, and WASM compilation in a single command.
+  </Step>
+</Steps>
+
+## Development server
+
+Trunk's dev server watches `src/` and `database/` for changes and hot-reloads the browser automatically.
+
+<Steps>
+  <Step title="Start the dev server">
+    ```bash
+    trunk serve
+    ```
+
+    Trunk compiles the project and opens `http://127.0.0.1:8080` in your default browser. The server keeps running and rebuilds on file changes.
+  </Step>
+  <Step title="Open the app">
+    Navigate to `http://127.0.0.1:8080` if the browser does not open automatically. The Memory Pak UI renders onto a `<canvas id="memory_pak_canvas">` element in the page.
+  </Step>
+</Steps>
+
+<Note>
+  The egui/eframe WASM runtime renders the entire UI onto a single canvas element with the id `memory_pak_canvas`. If you are embedding Memory Pak into an existing page, make sure no other element on the page uses that id.
+</Note>
+
+## Production build
+
+<Steps>
+  <Step title="Build with release optimizations">
+    ```bash
+    trunk build --release
+    ```
+
+    Trunk compiles the WASM binary with release-profile optimizations (`opt-level = "z"`, `lto = true`, `codegen-units = 1`) and outputs all assets to `dist/`.
+  </Step>
+  <Step title="Inspect the output">
+    The `dist/` directory contains everything needed to serve the app:
+
+    ```
+    dist/
+    ├── index.html
+    ├── memory_pak-*.wasm
+    ├── memory_pak-*.js
+    └── (other static assets)
+    ```
+
+    Serve `dist/` with any static file server.
+  </Step>
+</Steps>
+
+<Tip>
+  The `public_url` in `Trunk.toml` is set to `"./"`, which makes all asset paths relative. This lets you host the app in a subdirectory without changing any configuration.
+</Tip>
+
+## wasm-pack build
+
+wasm-pack produces a `pkg/` directory suitable for importing into JavaScript or TypeScript projects via a bundler such as webpack or Vite.
+
+```bash
+# One-time install
+cargo install wasm-pack
+
+# Build
+wasm-pack build --target web --out-dir pkg
+```
+
+The `pkg/` directory contains the compiled `.wasm` file, a generated `.js` glue module, and TypeScript type definitions.
+
+## Differences from the desktop build
+
+The WASM build and the native desktop build share the same source, but platform differences mean some features work differently in the browser:
+
+| Feature | Desktop | Web |
+|---|---|---|
+| State persistence | Platform user data directory (`%APPDATA%`, `~/.local/share`, etc.) | Browser `localStorage` with keys like `memory_pak_state_{console_id}` |
+| Import | Native file open dialog (`rfd`) | Paste-JSON dialog (user pastes exported JSON text) |
+| Export | Native file save dialog | Triggers a browser file download |
+| File dialog | Available (`rfd` crate) | Not available (`rfd` is not compiled on WASM) |
+
+<Warning>
+  Clearing browser site data or localStorage will erase all saved collection state for the web build. Use the export feature regularly to keep a backup of your data.
+</Warning>

@@ -1,0 +1,63 @@
+---
+title: "Memory Pak: retro game collection tracking in Rust"
+description: "Learn what Memory Pak is, which collection categories it covers, and why it keeps everything local — no account, no internet connection, no external files."
+---
+
+Memory Pak is a cross-platform retro game and console collection tracker built with Rust and egui. It lets you mark every console and game you own, have favorited, or want on your wishlist — along with free-text notes on each item. All game data is compiled directly into the binary, so the app works entirely offline with no external dependencies and no account required.
+
+## What you can track
+
+Memory Pak organizes your collection into four dedicated tabs. Each tab has its own search, sort, and filter controls, and every item supports the same Owned / Favorite / Wishlist states.
+
+<CardGroup cols={2}>
+  <Card title="Consoles" icon="tv" href="/guides/consoles">
+    30+ retro platforms from Nintendo, Sega, Sony, and Microsoft — mark hardware as owned, favorited, or wishlisted and add personal notes.
+  </Card>
+  <Card title="Games" icon="compact-disc" href="/guides/games">
+    Thousands of titles organized by platform with cross-console search, sortable by title, release year, or collection status.
+  </Card>
+  <Card title="LEGO Dimensions" icon="cube" href="/guides/lego-dimensions">
+    Every character figure and level pack from the LEGO Dimensions lineup, sortable by name, category, year, or pack.
+  </Card>
+  <Card title="Skylanders" icon="dragon" href="/guides/skylanders">
+    All Skylanders figures organized by game, category, and base color — covering the full toys-to-life series.
+  </Card>
+</CardGroup>
+
+## Key features
+
+- **Owned / Favorite / Wishlist states** — any item can hold one or more statuses simultaneously, each with a free-text notes field
+- **Embedded game database** — all game data is compiled into the binary using `include_dir!()`, so no external files are needed at runtime
+- **30+ retro platforms** — covers consoles from Nintendo, Sega, Sony, and Microsoft
+- **Cross-console search** — search game titles across every platform at once; queries are Unicode-normalized for consistent results
+- **Import / Export** — save your entire collection to a portable JSON file and restore it on any device or platform
+- **Responsive UI** — adapts to wide desktop windows and narrow mobile screens; screens under 700 px wide get a hamburger menu (☰) to toggle the sidebar
+- **Web (WASM) support** — runs in the browser at [aspenini.github.io/Memory-Pak](https://aspenini.github.io/Memory-Pak) with state stored in browser localStorage
+
+## Platform support
+
+Memory Pak runs on all major desktop platforms and in the browser. Your data is stored in the standard user data directory for your OS, or in localStorage on the web.
+
+| Platform | Data location |
+|----------|--------------|
+| Windows  | `%APPDATA%\com\memorypak\memory_pak\state\` |
+| macOS    | `~/Library/Application Support/com.memorypak.memory_pak/state/` |
+| Linux    | `~/.local/share/com/memorypak/memory_pak/state/` |
+| Web      | Browser localStorage |
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Download Memory Pak for Windows, macOS, Linux, or use it in your browser — no build step required.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    A step-by-step walkthrough of marking your first console and game and exporting a backup.
+  </Card>
+  <Card title="Tracking consoles" icon="gamepad" href="/guides/consoles">
+    Learn how to use the Consoles tab — filtering, sorting, notes, and pagination.
+  </Card>
+  <Card title="Tracking games" icon="compact-disc" href="/guides/games">
+    Browse and search thousands of games, switch consoles, and manage game states.
+  </Card>
+</CardGroup>

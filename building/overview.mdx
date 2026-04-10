@@ -1,0 +1,84 @@
+---
+title: "Building Memory Pak from Source: All Targets"
+description: "Overview of all Memory Pak build targets — native binary, platform installers, and WebAssembly — with prerequisites and key crate dependencies."
+---
+
+Memory Pak is written in Rust (edition 2021) and targets four distinct output formats: a native desktop binary, platform-specific installers (MSI, .app, .deb), a WebAssembly web app via Trunk, and a WebAssembly package via wasm-pack. All four share the same source tree — the target platform determines which dependencies are compiled in and how data persistence works at runtime.
+
+## Prerequisites
+
+Before building any target you need:
+
+- **Rust stable toolchain** — install from [rustup.rs](https://rustup.rs)
+- **Cargo** — included with the Rust toolchain
+
+Additional per-target tools are listed on each build page.
+
+## Build targets
+
+<CardGroup cols={2}>
+  <Card title="Desktop binary" icon="rectangle-terminal" href="/building/desktop">
+    Compile a self-contained native binary for Linux, macOS, or Windows using `cargo build --release`.
+  </Card>
+  <Card title="Web (WASM)" icon="globe" href="/building/web">
+    Build and serve the app as WebAssembly using Trunk, or package it with wasm-pack.
+  </Card>
+  <Card title="Platform installers" icon="box-archive" href="/building/installers">
+    Produce an MSI (Windows), .app bundle (macOS), or .deb package (Linux) for distribution.
+  </Card>
+  <Card title="wasm-pack package" icon="cube" href="/building/web">
+    Generate a `pkg/` directory consumable by JavaScript bundlers using `wasm-pack build`.
+  </Card>
+</CardGroup>
+
+## Build command summary
+
+| Target | Command | Output |
+|---|---|---|
+| Desktop (release) | `cargo build --release` | `target/release/memory_pak[.exe]` |
+| Desktop (dev) | `cargo build` | `target/debug/memory_pak[.exe]` |
+| Web dev server | `trunk serve` | Served at `http://127.0.0.1:8080` |
+| Web production | `trunk build --release` | `dist/` |
+| wasm-pack | `wasm-pack build --target web --out-dir pkg` | `pkg/` |
+| Windows MSI | `cargo wix` | `target/wix/Memory-Pak-0.1.5-x86_64.msi` |
+| macOS .app | `cargo bundle --release` | `target/release/bundle/osx/Memory Pak.app` |
+| Linux .deb | `cargo deb` | `target/debian/memory_pak_*.deb` |
+
+## Key dependencies
+
+Memory Pak v0.1.5 pulls in the following core crates:
+
+| Crate | Version | Purpose |
+|---|---|---|
+| `egui` | 0.33.3 | Immediate-mode GUI framework |
+| `eframe` | 0.33.3 | Platform integration layer for egui |
+| `serde` + `serde_json` | 1.0 | Serialization for import/export and state persistence |
+| `directories` | 6.0 | Resolve platform-specific user data directories |
+| `include_dir` | 0.7 | Embed the entire `database/` directory at compile time |
+| `chrono` | 0.4 | Date handling for export timestamps |
+
+### Native-only dependencies
+
+These crates are compiled in only when targeting a non-WASM platform:
+
+| Crate | Version | Purpose |
+|---|---|---|
+| `image` | 0.24 | App icon loading |
+| `rfd` | 0.14 | Native file open/save dialogs |
+
+### WASM-only dependencies
+
+These crates are compiled in only when targeting `wasm32-unknown-unknown`:
+
+| Crate | Version | Purpose |
+|---|---|---|
+| `wasm-bindgen` | 0.2 | Rust ↔ JavaScript bindings |
+| `wasm-bindgen-futures` | 0.4 | Async bridge for WASM |
+| `web-sys` | 0.3 | Web APIs (localStorage, Blob, Canvas, etc.) |
+| `js-sys` | 0.3 | JavaScript built-in bindings |
+| `wasm-logger` | 0.2 | Console logging from Rust on WASM |
+| `console_error_panic_hook` | 0.1 | Panic messages in browser console |
+
+<Note>
+  The `database/` directory — containing one JSON file per supported console — is embedded directly into the binary at compile time using `include_dir!("database")`. You do not need to distribute it separately alongside any build artifact.
+</Note>

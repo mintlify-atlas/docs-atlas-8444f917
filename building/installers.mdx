@@ -1,0 +1,131 @@
+---
+title: "Build Platform Installers for Memory Pak Distribution"
+description: "Create a Windows MSI, macOS .app bundle, or Linux .deb package from the Memory Pak source using cargo-wix, cargo-bundle, and cargo-deb."
+---
+
+Beyond the raw binary, Memory Pak can be packaged into platform-native installer formats for distribution. Each format has its own Cargo plugin that reads metadata from `Cargo.toml` and produces a ready-to-distribute artifact. All three workflows follow the same pattern: install the plugin once, then run a single build command.
+
+<Tabs>
+  <Tab title="Windows (MSI)">
+    ## Windows MSI installer
+
+    The MSI is built using `cargo-wix`, which generates a WiX Toolset source file and compiles it into an installer package.
+
+    <Warning>
+      WiX Toolset v3.11 or later must be installed on your system before running `cargo wix`. Download it from [wixtoolset.org](https://wixtoolset.org/). The `cargo-wix` plugin calls the WiX binaries (`candle.exe`, `light.exe`) directly — they must be on your `PATH`.
+    </Warning>
+
+    ### One-time setup
+
+    ```bash
+    cargo install cargo-wix
+    ```
+
+    ### Build the MSI
+
+    ```bash
+    cargo wix
+    ```
+
+    ### Output
+
+    ```
+    target/wix/Memory-Pak-0.1.5-x86_64.msi
+    ```
+
+    ### Bundle metadata
+
+    `cargo-wix` reads the following fields from `Cargo.toml` to populate the installer:
+
+    | Field | Value |
+    |---|---|
+    | Product name | `Memory Pak` |
+    | Bundle identifier | `com.Aspenini.MemoryPak` |
+    | Version | `0.1.5` |
+    | License | MIT |
+  </Tab>
+  <Tab title="macOS (.app)">
+    ## macOS application bundle
+
+    The `.app` bundle is built using `cargo-bundle`, which wraps the compiled binary in a macOS application bundle directory structure.
+
+    ### One-time setup
+
+    ```bash
+    cargo install cargo-bundle
+    ```
+
+    ### Build the .app bundle
+
+    ```bash
+    cargo bundle --release
+    ```
+
+    ### Output
+
+    ```
+    target/release/bundle/osx/Memory Pak.app
+    ```
+
+    You can distribute this `.app` directly, or compress it into a `.zip` or `.dmg` for easier transfer.
+
+    ### Bundle metadata
+
+    | Field | Value |
+    |---|---|
+    | Bundle name | `Memory Pak` |
+    | Bundle identifier | `com.Aspenini.MemoryPak` |
+    | Icon | `icons/macos/AppIcon.icns` |
+    | Category | Utility |
+    | Copyright | Copyright (c) 2025 Aspenini |
+
+    <Note>
+      `cargo-bundle` also reads `icons/windows/AppIcon.ico` and `icons/linux/AppIcon.png` from the icon list in `Cargo.toml`, but only the `.icns` file is used for the macOS bundle.
+    </Note>
+  </Tab>
+  <Tab title="Linux (.deb)">
+    ## Linux Debian package
+
+    The `.deb` package is built using `cargo-deb`, which produces a Debian-compatible package that installs the binary, icon, and documentation to standard system paths.
+
+    ### One-time setup
+
+    ```bash
+    cargo install cargo-deb
+    ```
+
+    ### Build the .deb package
+
+    ```bash
+    cargo deb
+    ```
+
+    ### Output
+
+    ```
+    target/debian/memory_pak_*.deb
+    ```
+
+    ### Installed files
+
+    | Source | Installed path | Permissions |
+    |---|---|---|
+    | `target/release/memory_pak` | `/usr/bin/memory-pak` | `755` |
+    | `icons/linux/AppIcon.png` | `/usr/share/icons/hicolor/512x512/apps/memory-pak.png` | `644` |
+    | `README.md` | `/usr/share/doc/memory-pak/README.md` | `644` |
+    | `LICENSE` | `/usr/share/doc/memory-pak/LICENSE` | `644` |
+
+    ### Package metadata
+
+    | Field | Value |
+    |---|---|
+    | Maintainer | Aspenini |
+    | Section | `utils` |
+    | Priority | `optional` |
+    | Dependencies | Auto-detected (`$auto`) |
+
+    <Tip>
+      To install the built package locally, run `sudo dpkg -i target/debian/memory_pak_*.deb`. Remove it with `sudo dpkg -r memory-pak`.
+    </Tip>
+  </Tab>
+</Tabs>

@@ -1,0 +1,101 @@
+{
+  "projectType": "saas",
+  "projectName": "Memory Pak",
+  "projectDescription": "A cross-platform retro game and console collection tracker built with Rust and egui, supporting desktop (Windows, macOS, Linux), web (WASM), with embedded game databases for consoles, LEGO Dimensions, and Skylanders.",
+  "theme": "almond",
+  "primaryColor": "#eab157",
+  "lightColor": "#8a642a",
+  "darkColor": "#5f5e5e",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Using Memory Pak",
+            "pages": [
+              "guides/consoles",
+              "guides/games",
+              "guides/lego-dimensions",
+              "guides/skylanders"
+            ]
+          },
+          {
+            "group": "Data & Backup",
+            "pages": [
+              "guides/import-export",
+              "guides/data-storage"
+            ]
+          },
+          {
+            "group": "Building from Source",
+            "pages": [
+              "building/overview",
+              "building/desktop",
+              "building/web",
+              "building/installers"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Data Formats",
+            "pages": [
+              "reference/export-format",
+              "reference/game-database",
+              "reference/console-list"
+            ]
+          },
+          {
+            "group": "Internals",
+            "pages": [
+              "reference/architecture",
+              "reference/stable-ids",
+              "reference/persistence"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Track consoles and games across 30+ retro platforms with Owned, Favorite, and Wishlist states",
+    "Embedded game database compiled into the binary — no external files required",
+    "Cross-platform support: Windows, macOS, Linux, and WebAssembly (browser)",
+    "LEGO Dimensions and Skylanders figure tracking tabs",
+    "Import/Export collection state as portable JSON",
+    "Cross-console search with Unicode normalization and fuzzy matching",
+    "Responsive UI that adapts to desktop and mobile screen sizes",
+    "Stable content-based game IDs that survive database updates"
+  ],
+  "publicApiSurface": [
+    "Console struct (id, name, manufacturer, year, variant)",
+    "Game struct (id, title, year, publisher, console_id)",
+    "GameState struct (game_id, owned, favorite, wishlist, notes)",
+    "ConsoleState struct (console_id, owned, favorite, wishlist, notes)",
+    "LegoDimensionFigure struct (name, category, year, pack_id)",
+    "LegoDimensionState struct (figure_id, owned, favorite, wishlist, notes)",
+    "Skylander struct (name, game, base_color, category)",
+    "SkylanderState struct (skylander_id, owned, favorite, wishlist, notes)",
+    "ExportData struct (version, export_date, console_states, consoles, lego_dimensions_states, skylanders_states)",
+    "export_data() — export collection to JSON file",
+    "import_data() — import collection from JSON file",
+    "load_embedded_games() — load all games from compiled-in database",
+    "get_hardcoded_consoles() — get list of supported consoles",
+    "load_skylanders() — load Skylanders figure database",
+    "load_lego_dimensions_figures() — load LEGO Dimensions figure database",
+    "save_game_states() / load_game_states() — persist game collection state",
+    "save_console_states() / load_all_console_states() — persist console collection state"
+  ]
+}

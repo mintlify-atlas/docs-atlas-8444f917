@@ -1,0 +1,97 @@
+---
+title: "Search and track your retro game library in Memory Pak"
+description: "Browse games by console or across your whole library. Mark games as owned, favorites, or wishlisted, and use Unicode-aware search to find any title."
+---
+
+The **Games** tab is where you log individual games across your entire retro library. You can focus on a single console or browse every game in the database at once. Each game card shows the title, publisher, release year, and status checkboxes, plus a notes field for anything you want to remember. Like the Consoles tab, all changes save automatically.
+
+## Selecting a console
+
+At the top of the Games tab is a **Select Console** dropdown. Choose a specific console to see only its games, or select **All Consoles** to view your entire game database in one scrollable list.
+
+Switching the console resets the page to 1 and clears any active search query cache. The dropdown lists only consoles that have game data loaded — consoles without a corresponding game database file do not appear.
+
+## Finding a game
+
+<Tabs>
+  <Tab title="Search">
+    Type in the **Search** box to filter games by title. The search engine uses Unicode normalization (NFD decomposition), which means:
+
+    - Accented characters work: searching `pokemon` matches `Pokémon`
+    - Punctuation is ignored: `donkey kong` matches `Donkey Kong: Country`
+
+    <Note>
+      The search strips apostrophes, colons, hyphens, underscores, periods, commas, exclamation marks, question marks, and semicolons before matching. You don't need to type punctuation exactly as it appears in the title.
+    </Note>
+  </Tab>
+  <Tab title="Filter">
+    Use the **Filter** controls to narrow results by ownership status:
+
+    | Filter | Shows |
+    |--------|-------|
+    | **All** | Every game for the selected console(s) |
+    | **Owned** | Games you have marked as owned |
+    | **Favorites** | Games marked as a favorite |
+    | **Wishlist** | Games on your wishlist |
+    | **Not Owned** | Games without the owned checkbox checked |
+  </Tab>
+  <Tab title="Sort">
+    Choose how games are ordered:
+
+    - **Title** — alphabetical (default)
+    - **Year** — by release year, oldest first
+    - **Status** — owned first, then favorites, wishlist, then unmarked
+  </Tab>
+</Tabs>
+
+## Reading a game card
+
+<CardGroup cols={2}>
+  <Card title="Console badge" icon="tag">
+    When viewing **All Consoles**, a badge at the top of each card shows which console the game belongs to, for example `[Nintendo 64]`.
+  </Card>
+  <Card title="Title and publisher" icon="book">
+    The game's full title and publisher, followed by its release year.
+  </Card>
+  <Card title="Status checkboxes" icon="check-square">
+    **Owned**, **Favorite**, and **Wishlist** checkboxes. You can set any combination — a game can be owned and a favorite at the same time.
+  </Card>
+  <Card title="Notes" icon="pen">
+    A free-text notes field below the checkboxes for condition notes, variant details, or anything else.
+  </Card>
+</CardGroup>
+
+## Marking a game
+
+<Steps>
+  <Step title="Select the right console">
+    Pick a console from the dropdown, or choose **All Consoles** if you're not sure which system a game belongs to.
+  </Step>
+  <Step title="Search or scroll to the game">
+    Type the game title in the **Search** box. The search is fuzzy and Unicode-aware, so you don't need to match punctuation or accented characters exactly.
+  </Step>
+  <Step title="Check the appropriate box">
+    Click **Owned**, **Favorite**, or **Wishlist** on the game card. Changes take effect immediately and save automatically after a short delay.
+  </Step>
+  <Step title="Add notes (optional)">
+    Click the **Notes** area on the card to add free-text information — disk condition, regional variant, purchase date, or anything else useful.
+  </Step>
+</Steps>
+
+## Cross-console view
+
+Selecting **All Consoles** loads every game in the database into a single list. Each card displays a console badge (for example, `[Super Nintendo Entertainment System]`) so you can tell at a glance which platform a game belongs to. Sort by **Title** for a unified alphabetical library, or by **Status** to see everything you own across all platforms.
+
+<Tip>
+  Use the **All Consoles** view with the **Owned** filter and **Title** sort to generate a single alphabetical list of your entire owned collection across every platform.
+</Tip>
+
+## Pagination
+
+The Games tab shows **50 games per page**. A status bar above the list shows the current count and page range, for example: `Showing 50 of 214 games (Page 1 of 5)`.
+
+Navigate with the **Previous** and **Next** buttons, or click a page number directly. Switching the console dropdown or changing the search query resets you to page 1.
+
+<Warning>
+  If you switch consoles and the list appears empty, check your active filter. A **Favorites** or **Owned** filter from a previous session carries over when you switch consoles.
+</Warning>

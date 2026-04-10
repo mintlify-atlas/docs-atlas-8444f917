@@ -1,0 +1,93 @@
+---
+title: "Browse, filter, and track retro consoles in Memory Pak"
+description: "Search, filter, and sort your console collection. Mark consoles as owned, on your wishlist, or a favorite, and add personal notes to each entry."
+---
+
+The **Consoles** tab is your starting point for tracking every supported retro system. Each console card shows the system name, manufacturer, release year, and a live summary of how many of its games you own, have favorited, or want. Changes save automatically in the background with a short debounce — no save button required.
+
+## Finding a console
+
+The controls bar at the top of the tab gives you three ways to narrow the list.
+
+<Tabs>
+  <Tab title="Search">
+    Type any part of a console name or manufacturer name into the **Search** field. The search is Unicode-aware and ignores common punctuation, so `nintendo` matches `Nintendo Entertainment System` and `snes` matches `Super Nintendo Entertainment System`.
+
+    The page resets to the first page automatically when you change the query.
+  </Tab>
+  <Tab title="Filter">
+    Click a filter to show only consoles in a given status:
+
+    | Filter | Shows |
+    |--------|-------|
+    | **All** | Every console in the database |
+    | **Owned** | Consoles you have checked as owned |
+    | **Favorites** | Consoles you have marked as a favorite |
+    | **Wishlist** | Consoles on your wishlist |
+    | **Not Owned** | Consoles without the owned checkbox checked |
+  </Tab>
+  <Tab title="Sort">
+    Pick a sort order from the **Sort by** controls:
+
+    - **Title** — alphabetical by console name (default)
+    - **Year** — chronological by release year
+    - **Status** — owned consoles first, then favorites, wishlist, then unmarked
+
+    <Tip>
+      Sort by **Status** after filtering by **Owned** to see all your consoles grouped at the top of the list, making it easy to audit your collection at a glance.
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Reading a console card
+
+Each console card displays the following information:
+
+<CardGroup cols={2}>
+  <Card title="Console details" icon="gamepad">
+    Name, manufacturer, and release year — pulled directly from the built-in console database.
+  </Card>
+  <Card title="Game counts" icon="list">
+    A live summary of games for that console: how many you own, have favorited, and have wishlisted.
+  </Card>
+  <Card title="Status checkboxes" icon="check-square">
+    Three checkboxes — **Owned**, **Favorite**, and **Wishlist** — to mark your personal status for the console itself.
+  </Card>
+  <Card title="Notes" icon="pen">
+    A free-text area below the checkboxes for any notes you want to attach to the console.
+  </Card>
+</CardGroup>
+
+<Note>
+  The game counts on a console card reflect the games tab — they update as soon as you mark games on the **Games** tab. The counts shown are owned, favorites, and wishlist separately.
+</Note>
+
+## Marking a console
+
+<Steps>
+  <Step title="Find the console">
+    Use the search box or browse the list. The console name, manufacturer, and release year are shown on each card.
+  </Step>
+  <Step title="Check the appropriate box">
+    Click **Owned**, **Favorite**, or **Wishlist** directly on the card. You can check any combination — a console can be both owned and a favorite, for example.
+  </Step>
+  <Step title="Add notes (optional)">
+    Click inside the **Notes** area below the checkboxes and type anything you want to remember — the revision you have, a serial number, a condition note, or a purchase price.
+  </Step>
+</Steps>
+
+Your changes are saved automatically. There is no manual save step.
+
+## Pagination
+
+The Consoles tab shows **20 consoles per page**. A status bar above the list shows the current count and page number, for example: `Showing 20 of 47 consoles (Page 1 of 3)`.
+
+Navigate between pages using the **Previous** and **Next** buttons, or click a page number directly. On narrower windows the controls compact to arrow icons and show five page number buttons instead of ten.
+
+<Warning>
+  Changing the search query or filter resets you to page 1. If you were on a later page and your results disappear, check whether the active filter or search term is excluding results.
+</Warning>
+
+## Responsive layout
+
+On narrow screens (below 700 px wide), the sort, filter, and search controls stack vertically. On very narrow screens (below 500 px wide), each console card also stacks vertically, moving the checkboxes and game counts below the console details instead of beside them. The hamburger menu button (☰) in the top bar toggles the sidebar when the window is narrow.

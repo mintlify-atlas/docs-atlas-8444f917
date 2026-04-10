@@ -1,0 +1,181 @@
+---
+title: "Memory Pak JSON Export and Import Format Reference"
+description: "Complete field-by-field reference for the JSON file Memory Pak creates when you export your console, game, LEGO Dimensions, and Skylanders states."
+---
+
+Memory Pak's export file is a single JSON document that captures the complete state of your collection — which consoles and games you own, have favorited, or want — along with your LEGO Dimensions figures and Skylanders figurines. You can export from the toolbar at any time and import back into any supported platform, including on a different machine or in a browser session.
+
+## Top-level structure
+
+The root object is an `ExportData` document with six fields.
+
+<ResponseField name="version" type="string" required>
+  Schema version. Always `"1.0"` in the current release.
+</ResponseField>
+
+<ResponseField name="export_date" type="string" required>
+  ISO 8601 datetime of when the export was created. Example: `"2024-01-01T00:00:00Z"`.
+</ResponseField>
+
+<ResponseField name="console_states" type="ConsoleState[]" required>
+  One entry per console that has any state set (owned, favorite, wishlist, or notes). Consoles with no state are omitted.
+
+  <Expandable title="ConsoleState properties">
+    <ResponseField name="console_id" type="string" required>
+      Matches the `id` field in `database/consoles.json`. Example: `"nes"`, `"ps2"`, `"switch"`.
+    </ResponseField>
+    <ResponseField name="owned" type="boolean" required>
+      Whether you own this console.
+    </ResponseField>
+    <ResponseField name="favorite" type="boolean" required>
+      Whether this console is marked as a favorite.
+    </ResponseField>
+    <ResponseField name="wishlist" type="boolean" required>
+      Whether this console is on your wishlist.
+    </ResponseField>
+    <ResponseField name="notes" type="string" required>
+      Free-form text notes. Empty string when no notes are set.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="consoles" type="ConsoleExportData[]" required>
+  One entry per console that has at least one game state recorded. Each entry groups all game states for that console.
+
+  <Expandable title="ConsoleExportData properties">
+    <ResponseField name="console_id" type="string" required>
+      The console this group belongs to. Matches a console `id` in `consoles.json`.
+    </ResponseField>
+    <ResponseField name="games" type="GameState[]" required>
+      All game states recorded for this console.
+
+      <Expandable title="GameState properties">
+        <ResponseField name="game_id" type="string" required>
+          Stable game identifier in the format `"{console_id}-{hex_hash}"`. The hash is derived from the console ID and game title. Example: `"nes-a1b2c3d4e5f67890"`. See [stable IDs](/reference/stable-ids) for details.
+        </ResponseField>
+        <ResponseField name="owned" type="boolean" required>
+          Whether you own this game.
+        </ResponseField>
+        <ResponseField name="favorite" type="boolean" required>
+          Whether this game is marked as a favorite.
+        </ResponseField>
+        <ResponseField name="wishlist" type="boolean" required>
+          Whether this game is on your wishlist.
+        </ResponseField>
+        <ResponseField name="notes" type="string" required>
+          Free-form text notes. Empty string when no notes are set.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="lego_dimensions_states" type="LegoDimensionState[]" default="[]">
+  States for LEGO Dimensions figures. Defaults to an empty array when the field is absent, so exports created before LEGO Dimensions support was added will still import correctly.
+
+  <Expandable title="LegoDimensionState properties">
+    <ResponseField name="figure_id" type="string" required>
+      Stable figure identifier in the format `"lego-{pack_id_slug}-{name_slug}"`. Both segments are slugified (lowercase, non-alphanumeric characters replaced with hyphens). Example: `"lego-starter-pack-batman"`.
+    </ResponseField>
+    <ResponseField name="owned" type="boolean" required>
+      Whether you own this figure.
+    </ResponseField>
+    <ResponseField name="favorite" type="boolean" required>
+      Whether this figure is marked as a favorite.
+    </ResponseField>
+    <ResponseField name="wishlist" type="boolean" required>
+      Whether this figure is on your wishlist.
+    </ResponseField>
+    <ResponseField name="notes" type="string" required>
+      Free-form text notes. Empty string when no notes are set.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="skylanders_states" type="SkylanderState[]" default="[]">
+  States for Skylanders figurines. Defaults to an empty array when the field is absent, matching the same backward-compatibility behavior as `lego_dimensions_states`.
+
+  <Expandable title="SkylanderState properties">
+    <ResponseField name="skylander_id" type="string" required>
+      Stable figurine identifier in the format `"skylander-{game_slug}-{name_slug}-{category_slug}"`. All segments are slugified. Example: `"skylander-spyros-adventure-spyro-core"`.
+    </ResponseField>
+    <ResponseField name="owned" type="boolean" required>
+      Whether you own this figurine.
+    </ResponseField>
+    <ResponseField name="favorite" type="boolean" required>
+      Whether this figurine is marked as a favorite.
+    </ResponseField>
+    <ResponseField name="wishlist" type="boolean" required>
+      Whether this figurine is on your wishlist.
+    </ResponseField>
+    <ResponseField name="notes" type="string" required>
+      Free-form text notes. Empty string when no notes are set.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Backward compatibility
+
+<Note>
+  The `lego_dimensions_states` and `skylanders_states` fields are annotated with `#[serde(default)]` in the Rust source. This means both fields are optional when importing — if they are missing from an older export file, Memory Pak will treat them as empty arrays rather than rejecting the document. Console and game states are unaffected by this.
+</Note>
+
+## Import behavior
+
+When you import a file, Memory Pak **merges** the imported states into your current collection rather than replacing it. An imported state for a console or game overwrites the existing state for that same ID. Items not present in the import file are left unchanged.
+
+<Tip>
+  To fully replace your collection with an exported file, clear your current data first before importing. On desktop, this means deleting the state files in your [data storage](/reference/persistence) directory.
+</Tip>
+
+## Complete example
+
+The following JSON shows a minimal but complete export with all six top-level fields populated.
+
+```json export.json
+{
+  "version": "1.0",
+  "export_date": "2024-01-01T00:00:00Z",
+  "console_states": [
+    {
+      "console_id": "nes",
+      "owned": true,
+      "favorite": false,
+      "wishlist": false,
+      "notes": "My original NES from 1985"
+    }
+  ],
+  "consoles": [
+    {
+      "console_id": "nes",
+      "games": [
+        {
+          "game_id": "nes-a1b2c3d4e5f67890",
+          "owned": true,
+          "favorite": true,
+          "wishlist": false,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "lego_dimensions_states": [
+    {
+      "figure_id": "lego-starter-pack-batman",
+      "owned": true,
+      "favorite": false,
+      "wishlist": false,
+      "notes": ""
+    }
+  ],
+  "skylanders_states": [
+    {
+      "skylander_id": "skylander-spyros-adventure-spyro-core",
+      "owned": true,
+      "favorite": true,
+      "wishlist": false,
+      "notes": "First edition"
+    }
+  ]
+}
+```

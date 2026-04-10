@@ -1,97 +1,66 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Memory Pak: Your retro game collection tracker"
+description: "Memory Pak helps you track every console and game you own, want, or love — across 30+ retro platforms, on desktop or in your browser."
 ---
 
-## Setting up
+Memory Pak is a cross-platform retro game and console collection tracker built with Rust and egui. Whether you collect Nintendo classics, Sega hardware, Sony handhelds, or toys-to-life figures like Skylanders and LEGO Dimensions, Memory Pak keeps your entire collection organized in one place — with no account required, no internet connection needed, and everything stored locally on your device.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Download Memory Pak for Windows, macOS, Linux, or run it in your browser
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Quick start" icon="rocket" href="/quickstart">
+    Get your collection set up in minutes with this step-by-step walkthrough
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Tracking consoles" icon="gamepad" href="/guides/consoles">
+    Mark consoles as owned, favorited, or wishlisted and add personal notes
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Tracking games" icon="compact-disc" href="/guides/games">
+    Browse thousands of games, filter by status, and search across all platforms
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## What you can track
 
-Everything you need to create world-class documentation.
+Memory Pak covers four categories of retro collectibles, each with its own dedicated tab in the app.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+<CardGroup cols={2}>
+  <Card title="Consoles" icon="tv" href="/guides/consoles">
+    30+ platforms from NES to Xbox Series, Nintendo to Sega to Sony
   </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
+  <Card title="Games" icon="compact-disc" href="/guides/games">
+    Thousands of titles per platform, searchable and sortable
   </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
+  <Card title="LEGO Dimensions" icon="cube" href="/guides/lego-dimensions">
+    Every character figure and pack from the LEGO Dimensions lineup
   </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
+  <Card title="Skylanders" icon="dragon" href="/guides/skylanders">
+    All Skylanders figures organized by game, category, and base color
   </Card>
-</Columns>
+</CardGroup>
 
-## Need inspiration?
+## Key features
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+- **Owned / Favorite / Wishlist states** — mark any item with one or more statuses and add personal notes
+- **Embedded database** — all game data is compiled into the binary, so it works completely offline
+- **Cross-console search** — search across all platforms at once with Unicode-aware fuzzy matching
+- **Import / Export** — back up your entire collection to a portable JSON file and restore it anywhere
+- **Responsive UI** — works on wide desktop screens and narrow mobile displays alike
+- **No account needed** — your data stays on your device, in platform-standard user data directories
+
+## Get started
+
+<Steps>
+  <Step title="Download or build Memory Pak">
+    Grab the latest release for your platform from the [GitHub releases page](https://github.com/Aspenini/Memory-Pak/releases), or follow the [build instructions](/building/overview) to compile from source.
+  </Step>
+  <Step title="Launch the app">
+    Run the binary (or open the installed app). Memory Pak loads its embedded game database automatically — no setup required.
+  </Step>
+  <Step title="Start marking your collection">
+    Use the **Consoles** tab to mark which hardware you own, and the **Games** tab to track your library. Check the [quickstart guide](/quickstart) for a full walkthrough.
+  </Step>
+  <Step title="Back up your data">
+    Use **Export** in the toolbar to save your collection state as JSON. Store it anywhere — Dropbox, a USB drive, or email it to yourself. See [Import / Export](/guides/import-export) for details.
+  </Step>
+</Steps>
